@@ -175,9 +175,8 @@ async def handler(event):
         if "apa kamu yakin ingin meningkatkan" in lowered and "kapal" in lowered:
             print(">> Deteksi pesan konfirmasi level up!")
             start = asyncio.get_event_loop().time()
-            success = False
 
-            while True:
+            while leveling:  # hanya jalan selama proses leveling
                 # Coba klik tombol confirm/yes
                 if await robust_click(event, "confirm") or await robust_click(event, "yes"):
                     print(">> Klik Confirm dikirim, tunggu balasan...")
@@ -190,18 +189,17 @@ async def handler(event):
                     await client.send_message(BOT_USERNAME, "/levelupKapal_ATK")
                     start = asyncio.get_event_loop().time()  # reset timer
 
-                # Cek balasan sukses dari bot game
-                if "berhasil meningkatkan level kapal" in lowered:
-                    print(">> Level up kapal sukses terdeteksi!")
+                # Jika bot sudah kirim pesan sukses, keluar dari loop (supaya tidak spam)
+                if "berhasil meningkatkan level kapal" in lowered or "berhasil meningkatkan level" in lowered:
+                    print(">> Level up kapal sukses terdeteksi (break loop)!")
                     break
-
 
         # Levelup sukses
         if "berhasil meningkatkan level" in lowered:
             print(">> LEVEL UP BERHASIL!")
             exp_current = 0
             exp_max = None
-            leveling = False
+            leveling = False   # reset flag leveling
             await asyncio.sleep(4)
             await client.send_message(BOT_USERNAME, "/kapal")
             print(">> Kirim /kapal untuk refresh status")
@@ -224,8 +222,7 @@ async def handler(event):
         # LOGIKA FARMING
         # ==========================================================
         
-        # Jika sedang dalam proses level up, abaikan farming logic
-        if leveling:
+        if leveling:  # Jika sedang leveling, skip farming
             return
 
         # Detect server limit
@@ -275,12 +272,10 @@ async def handler(event):
             return
 
         if "kamu menang" in lowered or "telusuri" in lowered or "gagal" in lowered:
-             # Cek dulu apakah ada button Telusuri/Adventure
             if await robust_click(event, "Telusuri") or await robust_click(event, "Adventure"):
                 print(">> Menang/Pesan umum, klik Telusuri/Adventure")
                 return
             else:
-                # Fallback: kirim /adventure jika tidak ada tombol
                 await client.send_message(BOT_USERNAME, "/adventure")
                 print(">> Fallback: kirim /adventure")
                 return
@@ -303,13 +298,12 @@ async def watchdog():
     while True:
         await asyncio.sleep(20)
         
-        if paused or leveling: # Jika sedang pause atau level up, jangan watchdog
+        if paused or leveling:  # pause atau leveling → skip
             continue
             
-        if attack_block_until and time.time() < attack_block_until: # Jika sedang limit server, jangan watchdog
+        if attack_block_until and time.time() < attack_block_until:  # limit server → skip
             continue
             
-        # Jika tidak ada event selama lebih dari 15 detik
         if asyncio.get_event_loop().time() - last_event_time > 15:
             try:
                 await client.send_message(BOT_USERNAME, "/adventure")
@@ -319,15 +313,11 @@ async def watchdog():
 
 # ---------------- startup ----------------
 async def main():
-    """Fungsi utama untuk menjalankan bot"""
     await client.start(phone=PHONE)
     logger.info("Client started")
     await asyncio.sleep(1)
     
-    # Kirim /kapal untuk inisiasi state
-    await client.send_message(BOT_USERNAME, "/kapal") 
-    
-    # Mulai Watchdog
+    await client.send_message(BOT_USERNAME, "/kapal")  # init state
     client.loop.create_task(watchdog())
     print(f">> Bot siap FARMING & LEVEL UP di @{BOT_USERNAME}")
     await client.run_until_disconnected()
