@@ -174,26 +174,26 @@ async def handler(event):
         # Deteksi pesan konfirmasi level up
         if "apa kamu yakin ingin meningkatkan" in lowered and "kapal" in lowered:
             print(">> Deteksi pesan konfirmasi level up!")
+            start = asyncio.get_event_loop().time()
+            success = False
 
-            while True:  # loop sampai berhasil
-                sukses = False
-                for attempt in range(5):
-                    if await robust_click(event, "confirm") or await robust_click(event, "yes"):
-                        print(f">> Klik Confirm sukses (percobaan {attempt+1})")
-                        sukses = True
-                        break
-                    else:
-                        print(f">> Tombol Confirm belum muncul (percobaan {attempt+1}), tunggu 2s...")
-                        await asyncio.sleep(2)
+            while True:
+                # Coba klik tombol confirm/yes
+                if await robust_click(event, "confirm") or await robust_click(event, "yes"):
+                    print(">> Klik Confirm dikirim, tunggu balasan...")
+        
+                await asyncio.sleep(3)
 
-                if sukses:
-                    break  # keluar loop, confirm berhasil
-                else:
-                    print("!! Gagal klik Confirm 5x, coba ulangi /levelupKapal_ATK")
-                    await asyncio.sleep(3)
+                # Cek timeout 5 menit
+                if asyncio.get_event_loop().time() - start > 300:
+                    print("!! Timeout 5 menit, kirim ulang /levelupKapal_ATK")
                     await client.send_message(BOT_USERNAME, "/levelupKapal_ATK")
-                    # loop ulang lagi, nunggu konfirmasi muncul
-            return
+                    start = asyncio.get_event_loop().time()  # reset timer
+
+                # Cek balasan sukses dari bot game
+                if "berhasil meningkatkan level kapal" in lowered:
+                    print(">> Level up kapal sukses terdeteksi!")
+                    break
 
 
         # Levelup sukses
