@@ -266,7 +266,7 @@ async def handler(event):
                 print(f">> +{gain} EXP (sementara)")
 
         # Auto fight / telusuri
-        if "dihadang" in lowered and "musuh" in lowered:
+        if "menelusuri" in lowered and "musuh" in lowered:
             await robust_click(event, "Lawan")
             print(">> Dihadang musuh, klik Lawan")
             return
