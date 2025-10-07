@@ -116,8 +116,8 @@ async def start_levelup():
         await client.send_message(BOT_USERNAME, "/levelupKapal")
         print(">> Kirim /levelupKapal")
         await asyncio.sleep(4)
-        await client.send_message(BOT_USERNAME, "/levelupKapal_ATK")
-        print(">> Kirim /levelupKapal_ATK")
+        await client.send_message(BOT_USERNAME, "/levelupKapal_HP")
+        print(">> Kirim /levelupKapal_HP")
     except Exception as e:
         print("!! Gagal start levelup:", e)
         leveling = False
