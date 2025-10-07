@@ -185,8 +185,8 @@ async def handler(event):
 
                 # Cek timeout 5 menit
                 if asyncio.get_event_loop().time() - start > 300:
-                    print("!! Timeout 5 menit, kirim ulang /levelupKapal_ATK")
-                    await client.send_message(BOT_USERNAME, "/levelupKapal_ATK")
+                    print("!! Timeout 5 menit, kirim ulang /levelupKapal_HP")
+                    await client.send_message(BOT_USERNAME, "/levelupKapal_HP")
                     start = asyncio.get_event_loop().time()  # reset timer
 
                 # Jika bot sudah kirim pesan sukses, keluar dari loop (supaya tidak spam)
