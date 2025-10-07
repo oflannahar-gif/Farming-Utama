@@ -45,7 +45,7 @@ else:
 # ---------------- state ----------------
 attack_block_until = 0.0
 last_event_time = 0.0
-energy_threshold = 22
+energy_threshold = 10
 last_action = None
 paused = False
 need_refresh_ship = True
